@@ -53,3 +53,5 @@ spec:
                 type: string
               endpoint:
                 type: string
+              message:
+                type: string
