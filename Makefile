@@ -2,7 +2,8 @@ IMAGE   := provisioner:latest
 CLUSTER := take-home
 PORT    := 8080
 
-.PHONY: up down cluster provisioner provisioner-local reset logs check crd-install controller-run
+.PHONY: up down cluster provisioner provisioner-local reset logs check crd-install controller-run \
+	sample-create sample-check sample-delete debug
 
 up: cluster provisioner
 cluster:
@@ -40,3 +41,15 @@ crd-install:
 
 controller-run: crd-install
 	@cd controller && go run ./cmd -provisioner-url=http://localhost:$(PORT)
+
+sample-create:
+	@kubectl apply -f controller/config/sample.yaml
+
+sample-check:
+	@kubectl get -f controller/config/sample.yaml -o wide
+
+sample-delete:
+	@kubectl delete -f controller/config/sample.yaml
+
+debug:
+	@curl -s http://localhost:$(PORT)/_debug/databases
