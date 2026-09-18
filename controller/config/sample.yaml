@@ -1,0 +1,7 @@
+apiVersion: demo.example.com/v1alpha1
+kind: ManagedDatabase
+metadata:
+  name: orders
+spec:
+  engine: postgres
+  sizeGB: 20
