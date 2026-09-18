@@ -2,10 +2,9 @@ IMAGE   := provisioner:latest
 CLUSTER := take-home
 PORT    := 8080
 
-.PHONY: up down cluster provisioner provisioner-local reset logs check
+.PHONY: up down cluster provisioner provisioner-local reset logs check crd-install controller-run
 
 up: cluster provisioner
-
 cluster:
 	@kind get clusters 2>/dev/null | grep -qx $(CLUSTER) \
 		|| kind create cluster --name $(CLUSTER)
@@ -35,3 +34,9 @@ check:
 down:
 	@docker rm -f provisioner >/dev/null 2>&1 || true
 	@kind delete cluster --name $(CLUSTER)
+
+crd-install:
+	@kubectl apply -f controller/config/crd.yaml
+
+controller-run: crd-install
+	@cd controller && go run ./cmd -provisioner-url=http://localhost:$(PORT)
