@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrlpkg "sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	demov1alpha1 "controller/api/v1alpha1"
@@ -18,8 +19,9 @@ import (
 )
 
 const (
-	pollInterval     = 10 * time.Second
-	deletionDeadline = 5 * time.Minute
+	pollInterval            = 10 * time.Second
+	deletionDeadline        = 5 * time.Minute
+	maxConcurrentReconciles = 5
 )
 
 type Provisioner interface {
@@ -188,5 +190,6 @@ func (r *ManagedDatabaseReconciler) setTerminal(ctx context.Context, db *demov1a
 func (r *ManagedDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&demov1alpha1.ManagedDatabase{}).
+		WithOptions(ctrlpkg.Options{MaxConcurrentReconciles: maxConcurrentReconciles}).
 		Complete(r)
 }
