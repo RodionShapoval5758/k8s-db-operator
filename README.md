@@ -101,6 +101,28 @@ Scaffolding the project with `kubebuilder` or `operator-sdk` is fine.
 **3. How to run it.** A few lines in the README. A short screen recording is
 welcome but not required.
 
+## Running and testing
+
+```sh
+make up              # kind cluster + provisioning API
+make controller-run   # applies the CRD, then runs the controller with `go run`
+```
+
+In another shell:
+
+```sh
+make sample-create   # apply the sample ManagedDatabase
+make sample-check    # kubectl get -o wide: watch Creating -> Provisioning -> Ready
+make sample-delete   # deletes the CR; blocks until the external database is gone
+make debug           # inspect the provisioner's raw state (manual verification only)
+```
+
+To exercise the failure paths, restart the provisioner with chaos flags turned
+up, e.g. `cd provisioner && go run . -lost-response-rate=1` to force every
+create into `Orphaned`, or kill the controller mid-create to test crash
+recovery — `make debug` afterwards should never show more than one database
+per CR.
+
 ## On AI tools
 
 Use whatever you like. 
