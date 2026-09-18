@@ -9,6 +9,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	demov1alpha1 "controller/api/v1alpha1"
 	"controller/internal/controller"
@@ -32,7 +33,11 @@ func main() {
 
 	shutdownTimeout := 35 * time.Second
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                  scheme,
+		Scheme: scheme,
+		// "0" disables the metrics server. Its default bind address, :8080,
+		// collides with the provisioning API's port, and metrics are out of
+		// scope for this exercise anyway.
+		Metrics:                 metricsserver.Options{BindAddress: "0"},
 		GracefulShutdownTimeout: &shutdownTimeout,
 	})
 	if err != nil {
